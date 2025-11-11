@@ -3,7 +3,7 @@ flask-cors==4.0.0
 flask-sqlalchemy==3.0.5
 
 psycopg2-binary==2.9.9
-sqlalchemy==2.0.23
+sqlalchemy==2.0.28
 
 gunicorn==21.2.0
 
