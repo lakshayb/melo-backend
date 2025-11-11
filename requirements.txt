@@ -1,26 +1,18 @@
-# Melo - The Therapist Chatbox
-# Python Dependencies for Railway Deployment
-
-# Web Framework
 Flask==3.0.0
 flask-cors==4.0.0
-flask-sqlalchemy==3.1.1
+flask-sqlalchemy==3.0.5
 
-# Database
 psycopg2-binary==2.9.9
 sqlalchemy==2.0.23
 
-# WSGI Server
 gunicorn==21.2.0
 
-# NLP and Machine Learning
-transformers==4.36.0
+transformers==4.44.0
 torch==2.5.0
-sentencepiece==0.1.99
+sentencepiece==0.2.0
+protobuf==4.25.0
 
-# Security
 werkzeug==3.0.1
 python-dotenv==1.0.0
-
-# Utilities
 python-dateutil==2.8.2
+requests==2.32.0
