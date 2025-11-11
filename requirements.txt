@@ -15,7 +15,7 @@ gunicorn==21.2.0
 
 # NLP and Machine Learning
 transformers==4.36.0
-torch==2.1.1
+torch==2.5.0
 sentencepiece==0.1.99
 
 # Security
