@@ -13,7 +13,7 @@ import logging
 import sys
 
 from models import db, User, Chatbot, Conversation, Message, EmotionAnalysis
-from nlp_engine_advanced import analyze_and_respond, initialize_nlp
+from nlp_engine import analyze_and_respond, initialize_nlp
 
 # Logging
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
