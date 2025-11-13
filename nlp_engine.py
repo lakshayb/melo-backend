@@ -227,7 +227,7 @@ class ResponseGenerator:
             }
         """
         # Check for crisis keywords
-        crisis_keywords = ['suicide', 'kill myself', 'end it all', 'don't want to live',
+        crisis_keywords = ['suicide', 'kill myself', 'end it all', 'dont want to live',
                           'harm myself', 'hurt myself', 'die']
         needs_escalation = any(keyword in user_message.lower() for keyword in crisis_keywords)
 
