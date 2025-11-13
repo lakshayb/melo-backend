@@ -233,13 +233,7 @@ class ResponseGenerator:
 
         if needs_escalation:
             return {
-                'response': "I'm really concerned about what you're sharing. Your safety is the top priority. Please reach out to a crisis helpline immediately:
-
-🆘 National Suicide Prevention Lifeline: 988 (US)
-🆘 Crisis Text Line: Text HOME to 741741
-🆘 International: findahelpline.com
-
-Please talk to a trained professional who can provide immediate help. Your life matters.",
+                'response': "Im really concerned about what you are sharing. Your safety is the top priority. Please reach out to a crisis helpline immediately Please talk to a trained professional who can provide immediate help. Your life matters.",
                 'coping_strategy': None,
                 'needs_escalation': True
             }
