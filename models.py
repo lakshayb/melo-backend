@@ -13,14 +13,13 @@ db = SQLAlchemy()
 class User(db.Model):
     """
     User entity - stores user information
-    Attributes as per ERD: user_id, username, email, password_hash, 
+    Attributes as per ERD: user_id, username, password_hash, 
     created_at, last_login, preferences
     """
     __tablename__ = 'users'
 
     user_id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String(100), nullable=False, unique=True)
-    email = Column(String(150), nullable=False, unique=True)
     password_hash = Column(String(255), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     last_login = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -156,7 +155,7 @@ class Feedback(db.Model):
 class Therapist(db.Model):
     """
     Therapist entity - stores information about human therapists for escalation
-    Attributes: therapist_id, name, email, specialization, phone,
+    Attributes: therapist_id, name, specialization, phone,
     availability_status, created_at
     Note: This is for future enhancement when users need human intervention
     """
@@ -164,7 +163,6 @@ class Therapist(db.Model):
 
     therapist_id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(150), nullable=False)
-    email = Column(String(150), nullable=False, unique=True)
     specialization = Column(String(100))
     phone = Column(String(20))
     availability_status = Column(String(20), default='available')
