@@ -160,18 +160,16 @@ def chat():
             message_type='text'
         )
         db.session.add(user_msg)
-        db.session.flush()
 
         # Analyze with user context (PASS USER_ID FOR CONTEXT LEARNING)
         analysis = analyze_and_respond(user_message, user_id=user_id, db=db)
 
         # Save emotion
         emotion_analysis = EmotionAnalysis(
-            message_id=user_msg.message_id,
             detected_emotion=analysis['emotion'],
             confidence_score=analysis['confidence']
         )
-        db.session.add(emotion_analysis)
+        user_msg.emotion_analysis = emotion_analysis
 
         # Save bot response
         bot_msg = Message(
