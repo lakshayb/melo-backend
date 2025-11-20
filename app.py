@@ -11,6 +11,8 @@ from datetime import datetime
 import os
 import logging
 import sys
+from datetime import datetime, timedelta
+
 
 from models import db, User, Chatbot, Conversation, Message, EmotionAnalysis
 from nlp_engine import analyze_and_respond, initialize_nlp
@@ -246,7 +248,53 @@ def get_messages(cid):
     except Exception as e:
         logger.error(f"Error: {e}")
         return jsonify({'error': 'Failed'}), 500
+@app.route('/api/conversations/<int:conversation_id>', methods=['DELETE'])
+def delete_conversation(conversation_id):
+    """Delete a specific conversation"""
+    try:
+        conversation = Conversation.query.get(conversation_id)
+        if not conversation:
+            return jsonify({'error': 'Conversation not found'}), 404
+        
+        # Delete all messages in the conversation
+        Message.query.filter_by(conversation_id=conversation_id).delete()
+        
+        # Delete the conversation
+        db.session.delete(conversation)
+        db.session.commit()
+        
+        return jsonify({'success': True}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
+@app.route('/api/conversations/cleanup', methods=['DELETE'])
+def cleanup_old_conversations():
+    """Delete conversations older than specified days"""
+    try:
+        days = request.args.get('days', 7, type=int)
+        user_id = request.args.get('user_id', type=int)
+        
+        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        
+        # Find old conversations
+        old_conversations = Conversation.query.filter(
+            Conversation.user_id == user_id,
+            Conversation.created_at < cutoff_date
+        ).all()
+        
+        count = 0
+        for conv in old_conversations:
+            Message.query.filter_by(conversation_id=conv.id).delete()
+            db.session.delete(conv)
+            count += 1
+        
+        db.session.commit()
+        
+        return jsonify({'deleted': count}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
