@@ -295,7 +295,7 @@ def cleanup_old_conversations():
         
         count = 0
         for conv in old_conversations:
-            Message.query.filter_by(conversation_id=conv.id).delete()
+            Message.query.filter_by(conversation_id=conv.conversation_id).delete()
             db.session.delete(conv)
             count += 1
         
