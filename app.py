@@ -72,7 +72,6 @@ def signup():
         data = request.get_json()
         username = data.get('username', '').strip()
         password = data.get('password', '')
-        email = data.get('email', f'{username}@melo.app').strip()
 
         if len(username) < 3 or len(password) < 6:
             return jsonify({'error': 'Invalid credentials'}), 400
@@ -80,7 +79,7 @@ def signup():
         if User.query.filter_by(username=username).first():
             return jsonify({'error': 'Username exists'}), 409
 
-        user = User(username=username, email=email, password_hash=generate_password_hash(password))
+        user = User(username=username, password_hash=generate_password_hash(password))
         db.session.add(user)
         db.session.commit()
 
