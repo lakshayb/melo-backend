@@ -166,12 +166,23 @@ def chat():
         # Analyze with user context (PASS USER_ID FOR CONTEXT LEARNING)
         analysis = analyze_and_respond(user_message, user_id=user_id, db=db)
 
-        emotion_analysis = EmotionAnalysis(
-            message_id=user_msg.message_id,
-            detected_emotion=analysis['emotion'],
-            confidence_score=analysis['confidence']
-        )
-        db.session.add(emotion_analysis)
+        existing_emotion = EmotionAnalysis.query.filter_by(
+            message_id=user_message.id
+        ).first()
+        if existing_emotion:
+            # Update if exists
+            existing_emotion.detected_emotion = analysis.get('emotion', 'Neutral')
+            existing_emotion.confidence_score = analysis.get('confidence', 0.5)
+            existing_emotion.analysis_timestamp = datetime.utcnow()
+        else:
+            # Insert if new
+            emotion = EmotionAnalysis(
+                message_id=user_message.id,
+                detected_emotion=analysis.get('emotion', 'Neutral'),
+                confidence_score=analysis.get('confidence', 0.5),
+                analysis_timestamp=datetime.utcnow()
+            )
+            db.session.add(emotion)
 
         # Save bot response
         bot_msg = Message(
