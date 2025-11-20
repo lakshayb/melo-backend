@@ -76,19 +76,19 @@ def detect_emotion_balanced(msg):
             'strong': ['devastated', 'heartbroken', 'destroyed', 'shattered', 'miserable', 'depressed'],
             'medium': ['sad', 'unhappy', 'down', 'blue', 'hurt', 'upset', 'lonely'],
             'weak': ['disappointed', 'discouraged', 'down', 'low'],
-            'context': ['lost', 'miss', 'grief', 'crying', 'can't stop thinking']
+            'context': ['lost', 'miss', 'grief', 'crying', 'cant stop thinking']
         },
         'Angry': {
             'strong': ['furious', 'enraged', 'livid', 'seething', 'rage', 'furious'],
             'medium': ['angry', 'mad', 'frustrated', 'irritated', 'annoyed', 'fed up'],
             'weak': ['bothered', 'bugged', 'upset', 'irritated'],
-            'context': ['unfair', 'disrespected', 'betrayed', 'can't believe']
+            'context': ['unfair', 'disrespected', 'betrayed', 'cant believe']
         },
         'Anxious': {
             'strong': ['terrified', 'panicked', 'horrified', 'petrified', 'panic attack'],
             'medium': ['anxious', 'worried', 'nervous', 'scared', 'afraid', 'uneasy'],
             'weak': ['concerned', 'apprehensive', 'worried'],
-            'context': ['what if', 'scared of', 'can't stop thinking', 'worried about']
+            'context': ['what if', 'scared of', 'cant stop thinking', 'worried about']
         },
         'Hopeful': {
             'strong': ['inspired', 'optimistic', 'believe', 'finally', 'breakthrough'],
@@ -103,16 +103,16 @@ def detect_emotion_balanced(msg):
             'context': ['no one understands', 'no friends', 'nobody cares']
         },
         'Overwhelmed': {
-            'strong': ['drowning', 'can't handle', 'too much', 'breaking down'],
+            'strong': ['drowning', 'cant handle', 'too much', 'breaking down'],
             'medium': ['overwhelmed', 'stressed', 'swamped', 'overloaded'],
             'weak': ['busy', 'lot going on'],
-            'context': ['everything at once', 'can't cope', 'too much']
+            'context': ['everything at once', 'cant cope', 'too much']
         },
         'Confused': {
             'strong': ['completely lost', 'bewildered', 'no idea'],
             'medium': ['confused', 'unsure', 'unclear', 'mixed up'],
             'weak': ['a bit confused', 'not sure'],
-            'context': ['what do i do', 'don't understand', 'lost']
+            'context': ['what do i do', 'dont understand', 'lost']
         }
     }
 
@@ -180,7 +180,7 @@ def generate_contextual_response(emotion, intensity, msg):
             3: "That's absolutely amazing! Your joy is infectious!",
         },
         'Sad': {
-            1: "I sense some sadness. That's okay. I'm listening.",
+            1: "I sense some sadness. Thats okay. I'm listening.",
             2: "I feel your sadness deeply. You're not alone here.",
             3: "You're carrying a heavy weight right now. I'm truly here for you.",
         },
