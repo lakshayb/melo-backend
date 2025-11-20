@@ -183,6 +183,7 @@ def chat():
                 analysis_timestamp=datetime.utcnow()
             )
             db.session.add(emotion)
+        db.session.commit()
 
         # Save bot response
         bot_msg = Message(
