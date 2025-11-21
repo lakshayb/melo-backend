@@ -200,7 +200,12 @@ def chat():
         db.session.add(user_msg)
 
         # Analyze with user context (PASS USER_ID FOR CONTEXT LEARNING)
-        analysis = analyze_and_respond(user_message, user_id=user_id, db=db)
+        analysis = analyze_and_respond(
+            user_message,
+            user_id=user_id,
+            conversation_id=conversation.conversation_id,
+            db=db
+        )
 
         # Save emotion
         emotion_analysis = EmotionAnalysis(
