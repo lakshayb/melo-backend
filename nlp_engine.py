@@ -6,6 +6,7 @@ Melo NLP Engine - Groq API with OpenAI GPT-OSS 120B
 import logging
 import os
 from groq import Groq
+from models import Message, Conversation
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ def initialize_nlp():
         return False
 
 
-def analyze_and_respond(user_message, user_id=None, db=None):
+def analyze_and_respond(user_message, user_id=None, conversation_id=None, db=None):
     """
     Analyze emotion and generate empathetic response using GPT-OSS 120B
     Falls back to pattern-based if API fails
@@ -39,10 +40,25 @@ def analyze_and_respond(user_message, user_id=None, db=None):
     if not user_message:
         return get_neutral_response()
 
+    # Fetch history if possible
+    history = []
+    if db and conversation_id:
+        try:
+            # Get last 20 messages for context (simple approximation of 'whole chat' within reason)
+            # Order by descending to get most recent, then reverse for chronological order
+            past_messages = Message.query.filter_by(conversation_id=conversation_id).order_by(Message.timestamp.desc()).limit(20).all()
+            past_messages.reverse()
+
+            for msg in past_messages:
+                role = 'user' if msg.sender_type == 'user' else 'assistant'
+                history.append({"role": role, "content": msg.message_text})
+        except Exception as e:
+            logger.warning(f"Failed to fetch history: {e}")
+
     # Try Groq API with GPT-OSS 120B
     if client:
         try:
-            return get_groq_response(user_message)
+            return get_groq_response(user_message, history)
         except Exception as e:
             logger.warning(f"Groq API failed: {e}, using fallback")
 
@@ -50,8 +66,11 @@ def analyze_and_respond(user_message, user_id=None, db=None):
     return get_pattern_response(user_message)
 
 
-def get_groq_response(user_message):
+def get_groq_response(user_message, history=None):
     """Get response from Groq API using OpenAI GPT-OSS 120B"""
+
+    if history is None:
+        history = []
 
     system_prompt = """You are Melo — an empathetic AI therapist and mental-health companion.
 Core Identity & Purpose
@@ -134,13 +153,20 @@ Melo offers emotional presence, gentle support, and understanding.
 Melo does not diagnose, instruct, or replace professionals.
 Melo maintains strict safety boundaries and prioritizes compassion above all else."""
 
+    # Construct messages with history
+    messages = [{"role": "system", "content": system_prompt}]
+    messages.extend(history)
+
+    # Ensure the user's current message is last, if not already in history
+    # (The app saves the user message BEFORE calling this function, so it MIGHT be in history already if DB commit happened)
+    # Checking if the last message in history matches user_message to avoid duplication
+    if not history or history[-1]['content'] != user_message:
+        messages.append({"role": "user", "content": user_message})
+
     try:
         response = client.chat.completions.create(
             model="openai/gpt-oss-120b",  # GPT-OSS 120B model
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_message}
-            ],
+            messages=messages,
             temperature=0.7,
             max_tokens=250,
             top_p=0.9
