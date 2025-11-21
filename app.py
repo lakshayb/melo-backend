@@ -295,10 +295,9 @@ def delete_conversation(conversation_id):
         if not conversation:
             return jsonify({'error': 'Conversation not found'}), 404
         
-        # Delete all messages in the conversation
-        Message.query.filter_by(conversation_id=conversation_id).delete()
-        
         # Delete the conversation
+        # SQLAlchemy cascade='all, delete-orphan' on the relationship will handle
+        # deleting messages and their emotion analyses
         db.session.delete(conversation)
         db.session.commit()
         
