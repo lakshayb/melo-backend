@@ -15,6 +15,8 @@ from datetime import datetime, timedelta
 
 from models import db, User, Chatbot, Conversation, Message, EmotionAnalysis
 from nlp_engine import analyze_and_respond, initialize_nlp
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
 
 # Logging
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
@@ -44,6 +46,38 @@ CORS(app, resources={
 
 db.init_app(app)
 
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    """Enable foreign key constraints for SQLite"""
+    if app.config['SQLALCHEMY_DATABASE_URI'].startswith('sqlite'):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+
+def cleanup_orphaned_analyses():
+    """Cleanup orphaned emotion analyses that point to non-existent messages"""
+    try:
+        # Get all valid message IDs
+        valid_message_ids = db.session.query(Message.message_id).all()
+        valid_message_ids = set(m[0] for m in valid_message_ids)
+
+        # Get all analyses
+        analyses = EmotionAnalysis.query.all()
+        deleted_count = 0
+
+        for analysis in analyses:
+            if analysis.message_id not in valid_message_ids:
+                db.session.delete(analysis)
+                deleted_count += 1
+
+        if deleted_count > 0:
+            db.session.commit()
+            logger.info(f"Cleaned up {deleted_count} orphaned emotion analyses")
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Cleanup error: {e}")
+
 @app.after_request
 def set_security_headers(response):
     response.headers['X-Content-Type-Options'] = 'nosniff'
@@ -53,6 +87,10 @@ def set_security_headers(response):
 # Initialize
 with app.app_context():
     db.create_all()
+
+    # Run cleanup on startup to fix any bad state
+    cleanup_orphaned_analyses()
+
     chatbot = Chatbot.query.first()
     if not chatbot:
         chatbot = Chatbot(name='Melo', model_version='2.0-Advanced', status='active')
@@ -276,12 +314,16 @@ def cleanup_old_conversations():
         # Find old conversations
         old_conversations = Conversation.query.filter(
             Conversation.user_id == user_id,
-            Conversation.created_at < cutoff_date
+            Conversation.started_at < cutoff_date
         ).all()
         
         count = 0
         for conv in old_conversations:
-            Message.query.filter_by(conversation_id=conv.id).delete()
+            # Delete objects individually to ensure cascades work
+            messages = Message.query.filter_by(conversation_id=conv.conversation_id).all()
+            for msg in messages:
+                db.session.delete(msg)
+
             db.session.delete(conv)
             count += 1
         
